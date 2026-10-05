@@ -200,6 +200,17 @@ export const MODULES: ModuleMeta[] = [
     actionTargets: {"提交编制": "待审核", "批准方案": "已批准", "废止方案": "已废止"},
     metrics: ["待编制方案", "待审核方案", "已批准方案"],
   },
+  {
+    key: "floodmaterial",
+    name: "防汛物资调拨",
+    entity: "防汛物资库位账",
+    desc: "按库位×物资记可用量与储备定额，出入库凭单据号留痕；领用单按储备定额系统判发，库管员限本片库当班操作，盘点按旧口径折算导入。",
+    fields: ["库位号", "片库", "物资", "计量单位", "可用量", "储备定额", "在途占用"],
+    statuses: ["已受理", "已出库", "已退回"],
+    actions: ["出库", "入库", "提交领用单"],
+    actionTargets: {},
+    metrics: ["库位账条数", "未核销警示", "在途占用单"],
+  },
 ]
 
 export const MODULE_BY_KEY: Map<string, ModuleMeta> = new Map(

@@ -1,5 +1,6 @@
 import { MODULE_BY_KEY } from '@/data/modules'
 import { allRows, listRows, resetRows, saveRows } from '@/data/local-store'
+import { materialSummary } from '@/api/material-service'
 import type { ActionResult, EntryRow, ModuleMeta, OverviewResult, PageResult } from '@/data/types'
 
 // 会写进数据的「往回走」动作：命中就把这条记录标成异常态，看板上能一眼看出来。
@@ -87,6 +88,11 @@ export function downloadEntries(key: string): void {
 export function loadOverview(): OverviewResult {
   const rows = allRows()
   const modules = [...MODULE_BY_KEY.values()].map((meta) => {
+    if (meta.key === 'floodmaterial') {
+      const summary = materialSummary()
+      // 防汛物资：待处理=未核销警示，异常量=在途占用的领用单。
+      return { name: meta.name, created: summary.created, pending: summary.openAlerts, abnormal: summary.inTransit }
+    }
     const entries = rows[meta.key] ?? []
     return {
       name: meta.name,
@@ -95,10 +101,12 @@ export function loadOverview(): OverviewResult {
       abnormal: entries.filter((row) => row.abnormal).length,
     }
   })
+  const openMaterialAlerts = materialSummary().openAlerts
   const cards = [
     { label: '业务模块', value: modules.length },
     { label: '登记总量', value: modules.reduce((sum, item) => sum + item.created, 0) },
     { label: '待处理', value: modules.reduce((sum, item) => sum + item.pending, 0) },
+    { label: '物资警示', value: openMaterialAlerts },
     { label: '异常量', value: modules.reduce((sum, item) => sum + item.abnormal, 0) },
   ]
   return { cards, modules }
